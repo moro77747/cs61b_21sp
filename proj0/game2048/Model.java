@@ -152,7 +152,7 @@ public class Model extends Observable {
                                 else break;
                             }
                             changed = true;
-                            score+= t.value();
+                            score+= 2*t.value();
                             flag = true;
                             break;
                         }
