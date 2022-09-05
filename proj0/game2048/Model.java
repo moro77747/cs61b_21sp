@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author moro
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -109,10 +109,125 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
+        //step1 merge or move
+        for(int c=0;c< board.size();c++)
+        {
+            for(int r=0;r<board.size();r++)
+            {
+                Tile t = board.tile(c,r);
+                if(t!=null)
+                {
+                    //case1 merge
+                    int max = r+1;
+                    boolean flag = false;
+                    while(max< board.size())
+                    {
+                        if(board.tile(c,max)==null)
+                        {
+                            max++;
+                            continue;
+                        }
+                        if(board.tile(c,max).value()==t.value())
+                        {
+                            int count = 0;
+                            int cmax = max;
+                            cmax++;
+                            while(cmax<board.size())
+                            {
+                                Tile tempc = board.tile(c,cmax);
+                                if(tempc!=null && tempc.value()==t.value() && cmax!=r)
+                                {
+                                    count++;
 
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+                                }
+                                cmax++;
+                            }
+                            if(count==1) break;
+                            board.move(c,max,t);
+                            int temp = max+1;
+                            while(temp<board.size())
+                            {
+                                if(board.tile(c,temp)==null) temp++;
+                                else break;
+                            }
+                            changed = true;
+                            score+= 2 * t.value();
+                            flag = true;
+                            break;
+                        }
+                        else break;
+                    }
+                    //case2 move
+                    if(flag==false)
+                    {
+                        max=r+1;
+                        while (max<board.size())
+                        {
+                            if(board.tile(c,max)==null)
+                            {
+                                max++;
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        if(max==board.size())
+                        {
+                            if(tile(c,board.size()-1)==null)
+                            {board.move(c,board.size()-1,t);
+                            changed = true;}
+                        }
+                        else
+                        {
+                            max--;
+                            if(tile(c,max)==null)
+                            {board.move(c,max,t);
+                            changed=true;}
+                        }
+                    }
+
+                }
+            }
+        }
+        //step2 move again
+        for(int c=0;c< board.size();c++) {
+            for (int r = 0; r < board.size(); r++) {
+                Tile t = board.tile(c, r);
+                if(t!=null)
+                {
+                    int max=r+1;
+                    while (max<board.size())
+                    {
+                        if(board.tile(c,max)==null)
+                        {
+                            max++;
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    if(max==board.size())
+                    {
+                        if(tile(c,board.size()-1)==null)
+                        {board.move(c,board.size()-1,t);
+                            changed = true;}
+                    }
+                    else
+                    {
+                        max--;
+                        if(tile(c,max)==null)
+                        {board.move(c,max,t);
+                            changed=true;}
+                    }
+
+                }
+            }
+        }
+
 
         checkGameOver();
         if (changed) {
@@ -137,7 +252,14 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        for(int i =0;i<b.size();i++)
+        {
+            for (int j =0;j<b.size();j++)
+            {
+                Tile t = b.tile(i,j);
+                if(t==null || t.next()==null) return true;
+            }
+        }
         return false;
     }
 
@@ -147,7 +269,14 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        for(int i =0;i<b.size();i++)
+        {
+            for (int j =0;j<b.size();j++)
+            {
+                Tile t = b.tile(i,j);
+                if(t!=null && t.value()==MAX_PIECE) return true;
+            }
+        }
         return false;
     }
 
@@ -158,7 +287,49 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        for(int i =0;i<b.size();i++)
+        {
+            for (int j =0;j<b.size();j++)
+            {
+                Tile t = b.tile(i,j);
+                //case1.There is at least one empty space on the board.
+                if(t==null || t.next()==null) return true;
+                //case2.There are two adjacent tiles with the same value.
+                //north
+                if(i-1>=0)
+                {
+                   if( b.tile(i-1,j)!=null)
+                   {
+                       if(b.tile(i-1,j).value()==t.value()) return true;
+                   }
+                }
+                //south
+                if(i+1<b.size())
+                {
+                    if( b.tile(i+1,j)!=null)
+                    {
+                        if(b.tile(i+1,j).value()==t.value()) return true;
+                    }
+                }
+                //east
+                if(j+1<b.size())
+                {
+                    if( b.tile(i,j+1)!=null)
+                    {
+                        if(b.tile(i,j+1).value()==t.value()) return true;
+                    }
+                }
+                //west
+                if(j-1>=0)
+                {
+                    if( b.tile(i,j-1)!=null)
+                    {
+                        if(b.tile(i,j-1).value()==t.value()) return true;
+                    }
+                }
+
+            }
+        }
         return false;
     }
 
