@@ -110,6 +110,7 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
         //step1 merge or move
+        board.setViewingPerspective(side);
         for(int c=0;c< board.size();c++)
         {
             for(int r=0;r<board.size();r++)
@@ -151,7 +152,7 @@ public class Model extends Observable {
                                 else break;
                             }
                             changed = true;
-                            score+= 2 * t.value();
+                            score+= t.value();
                             flag = true;
                             break;
                         }
@@ -233,6 +234,7 @@ public class Model extends Observable {
         if (changed) {
             setChanged();
         }
+        board.setViewingPerspective(Side.NORTH);
         return changed;
     }
 
